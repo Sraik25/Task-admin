@@ -1,0 +1,8 @@
+export const FORM_PROJECT = 'FORM_PROJECT';
+export const GET_PROJECT = 'GET_PROJECT';
+export const ADD_PROJECT = 'ADD_PROJECT';
+export const VALIDATION_FORM = 'VALIDATION_FORM';
+export const ACTUAL_PROJECT = 'ACTUAL_PROJECT';
+export const REMOVE_PROJECT = 'REMOVE_PROJECT';
+
+
