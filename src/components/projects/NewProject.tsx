@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import { ChangeEvent, FormEvent, useContext, useState } from 'react';
 import projectContext from '../../context/projects/projectContext';
 
 interface INewProject {
@@ -6,9 +6,8 @@ interface INewProject {
 }
 
 const NewProject = () => {
-  const projectsContext = useContext(projectContext);
-
-  const { form, error, showForm, addProject, showError } = projectsContext;
+  const { form, error, showForm, addProject, showError } =
+    useContext(projectContext);
 
   // local State
 
@@ -19,14 +18,14 @@ const NewProject = () => {
   const { nameProject } = newProject;
 
   //
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNewProject({
       ...newProject,
       [e.target.name]: e.target.value,
     });
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (nameProject.trim() === '') {

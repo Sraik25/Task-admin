@@ -1,37 +1,69 @@
-import React, { useContext, useState } from 'react';
+import { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
 import projectContext from '../../context/projects/projectContext';
-
-interface ITask {
-  nameTask: string;
-}
+import { ITask } from '../../context/Tasks/dtos';
+import taskContext from '../../context/Tasks/taskContext';
 
 const FormTask = () => {
-  const projectsContext = useContext(projectContext);
+  const { project } = useContext(projectContext);
+  const {
+    task,
+    error,
+    addTask,
+    validationForm,
+    getTasks,
+    updateTask,
+    cleanTask,
+  } = useContext(taskContext);
 
-  const { project } = projectsContext;
+  useEffect(() => {
+    if (task !== null) {
+      setNewTask(task);
+    } else {
+      setNewTask({
+        nameTask: '',
+        projectId: '',
+        stateTask: false,
+      });
+    }
+  }, [task]);
 
   const [newTask, setNewTask] = useState<ITask>({
     nameTask: '',
+    projectId: '',
+    stateTask: false,
   });
 
   const { nameTask } = newTask;
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNewTask({
       ...newTask,
       [e.target.name]: e.target.value,
     });
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (nameTask.trim() === '') {
+      validationForm();
       return;
     }
 
+    if (task === null) {
+      newTask.projectId = project?._id;
+      addTask(newTask);
+    } else {
+      updateTask(newTask);
+      cleanTask();
+    }
+
+    getTasks(project?._id);
+
     setNewTask({
       nameTask: '',
+      projectId: '',
+      stateTask: false,
     });
   };
 
@@ -54,10 +86,13 @@ const FormTask = () => {
           <input
             type="submit"
             className="btn btn-primario btn-submit btn-block"
-            value="Agregar Tarea"
+            value={task ? 'Editar Tarea' : 'Agregar Tarea'}
           />
         </div>
       </form>
+      {error ? (
+        <p className="mensaje error">El nombre de la tarea es obligatorio</p>
+      ) : null}
     </div>
   );
 };

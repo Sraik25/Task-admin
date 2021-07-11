@@ -1,13 +1,30 @@
-import React, { useState } from 'react';
+import { useContext, useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import { RouteComponentProps } from 'react-router-dom';
+import alertContext from '../../context/alerts/alertContext';
+import authContext from '../../context/authentication/authContext';
 
-interface INewUser {
+export interface INewUser {
   nameUser: string;
   email: string;
   password: string;
-  confirmPassword: string;
+  confirmPassword?: string;
 }
 
-const NewAccount = () => {
+const NewAccount = ({ history }: RouteComponentProps) => {
+  const { alertMessage, showAlert } = useContext(alertContext);
+
+  const { message, authenticated, registerUser } = useContext(authContext);
+
+  useEffect(() => {
+    if (authenticated) {
+      history.push('/projects');
+    }
+    if (message) {
+      showAlert(message.msg, message.category);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [message, authenticated, history]);
+
   //local State
 
   const [newUser, setNewUser] = useState<INewUser>({
@@ -19,14 +36,14 @@ const NewAccount = () => {
 
   const { nameUser, email, password, confirmPassword } = newUser;
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNewUser({
       ...newUser,
       [e.target.name]: e.target.value,
     });
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Validation
@@ -34,17 +51,26 @@ const NewAccount = () => {
       nameUser.trim() === '' ||
       email.trim() === '' ||
       password.trim() === '' ||
-      confirmPassword.trim() === ''
+      confirmPassword?.trim() === ''
     ) {
+      showAlert('Todos los campos son obligatorios', 'alerta-error');
+      return;
+    }
+
+    if (password.length < 6) {
+      showAlert('El password debe ser minimo de 6 caracteres', 'alerta-error');
       return;
     }
 
     // Validation password
-    if (password.trim() !== confirmPassword.trim()) {
+    if (password.trim() !== confirmPassword?.trim()) {
+      showAlert('Los password no son iguales', 'alerta-error');
       return;
     }
 
     // Send Action
+
+    registerUser({ nameUser, email, password });
 
     // Clean fields
 
@@ -58,6 +84,11 @@ const NewAccount = () => {
 
   return (
     <div className="form-usuario">
+      {alertMessage && (
+        <div className={`alerta ${alertMessage.category}`}>
+          {alertMessage.msg}
+        </div>
+      )}
       <div className="contenedor-form sombra-dark">
         <h1>Obtener un cuenta</h1>
         <form onSubmit={onSubmit}>

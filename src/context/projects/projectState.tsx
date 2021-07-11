@@ -1,76 +1,103 @@
-import React, { FC, useReducer } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { FC, useReducer } from 'react';
 
 import projectContext from './projectContext';
 import projectReducer from './projectReducer';
 
 import { IInitialStateProject, IProject } from './dtos';
-import {
-  FORM_PROJECT,
-  GET_PROJECT,
-  ADD_PROJECT,
-  VALIDATION_FORM,
-  ACTUAL_PROJECT,
-  REMOVE_PROJECT,
-} from '../../types';
+import clientAxios from '../../config/axios';
 
 const ProjectState: FC = (props) => {
-  const projects: IProject[] = [
-    { id: 1, nameProject: 'Tienda Virtual' },
-    { id: 2, nameProject: 'Intranet' },
-    { id: 3, nameProject: 'Diseño de Sitio web' },
-  ];
-
   const initialState: IInitialStateProject = {
     projects: [],
     form: false,
     error: false,
     project: null,
+    message: null,
   };
 
   const [state, dispatch] = useReducer(projectReducer, initialState);
 
   const showForm = () => {
     dispatch({
-      type: FORM_PROJECT,
+      type: 'FORM_PROJECT',
     });
   };
 
-  const getProjects = () => {
-    dispatch({
-      type: GET_PROJECT,
-      payload: projects,
-    });
+  const getProjects = async () => {
+    try {
+      const {
+        data: { projects },
+      } = await clientAxios.get('/api/proyectos');
+
+      dispatch({
+        type: 'GET_PROJECT',
+        payload: projects,
+      });
+    } catch ({ response: { data } }) {
+      const alertMessage = {
+        msg: data,
+        category: 'alerta-error',
+      };
+
+      dispatch({
+        type: 'PROJECT_ERROR',
+        payload: alertMessage,
+      });
+    }
   };
 
-  const addProject = (project: IProject) => {
-    project.id = uuidv4();
+  const addProject = async (project: IProject) => {
+    try {
+      const { data } = await clientAxios.post('/api/proyectos', project);
 
-    console.log(project);
-    dispatch({
-      type: ADD_PROJECT,
-      payload: project,
-    });
+      dispatch({
+        type: 'ADD_PROJECT',
+        payload: data,
+      });
+    } catch ({ response: { data } }) {
+      const alertMessage = {
+        msg: data,
+        category: 'alerta-error',
+      };
+
+      dispatch({
+        type: 'PROJECT_ERROR',
+        payload: alertMessage,
+      });
+    }
   };
 
   const showError = () => {
     dispatch({
-      type: VALIDATION_FORM,
+      type: 'VALIDATION_FORM',
     });
   };
 
   const getActualProject = (project: IProject) => {
     dispatch({
-      type: ACTUAL_PROJECT,
+      type: 'ACTUAL_PROJECT',
       payload: project,
     });
   };
 
-  const removeProject = (projectId: string | number | undefined) => {
-    dispatch({
-      type: REMOVE_PROJECT,
-      payload: projectId,
-    });
+  const removeProject = async (projectId: string | undefined) => {
+    try {
+      await clientAxios.delete(`/api/proyectos/${1}`);
+      dispatch({
+        type: 'REMOVE_PROJECT',
+        payload: projectId,
+      });
+    } catch ({ response: { data } }) {
+      const alertMessage = {
+        msg: data,
+        category: 'alerta-error',
+      };
+
+      dispatch({
+        type: 'PROJECT_ERROR',
+        payload: alertMessage,
+      });
+    }
   };
 
   return (
@@ -80,6 +107,7 @@ const ProjectState: FC = (props) => {
         projects: state.projects,
         form: state.form,
         project: state.project,
+        message: state.message,
         showForm,
         getProjects,
         addProject,

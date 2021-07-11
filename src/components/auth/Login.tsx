@@ -1,12 +1,29 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
+import { Link, RouteComponentProps } from 'react-router-dom';
+import alertContext from '../../context/alerts/alertContext';
+import authContext from '../../context/authentication/authContext';
 
 interface IUser {
   email: string;
   password: string;
 }
 
-const Login = () => {
+const Login = ({ history }: RouteComponentProps) => {
+  const { alertMessage, showAlert } = useContext(alertContext);
+
+  const { message, authenticated, logIn } = useContext(authContext);
+
+  useEffect(() => {
+    if (authenticated) {
+      history.push('/projects');
+    }
+
+    if (message) {
+      showAlert(message.msg, message.category);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [message, authenticated, history]);
+
   //local State
 
   const [user, setUser] = useState<IUser>({
@@ -16,23 +33,24 @@ const Login = () => {
 
   const { email, password } = user;
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     setUser({
       ...user,
       [e.target.name]: e.target.value,
     });
   };
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Validation
     if (email.trim() === '' || password.trim() === '') {
+      showAlert('Todos los campos son obligatorios', 'alerta-error');
       return;
     }
 
     // Send Action
-
+    logIn({ email, password });
     // clean fields
 
     setUser({
@@ -43,6 +61,11 @@ const Login = () => {
 
   return (
     <div className="form-usuario">
+      {alertMessage && (
+        <div className={`alerta ${alertMessage.category}`}>
+          {alertMessage.msg}
+        </div>
+      )}
       <div className="contenedor-form sombra-dark">
         <h1>Iniciar Sesión</h1>
         <form onSubmit={onSubmit}>

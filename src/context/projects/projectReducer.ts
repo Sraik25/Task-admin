@@ -1,5 +1,6 @@
 /* eslint-disable import/no-anonymous-default-export */
 
+import { IAlertMessage } from '../alerts/alertDtos';
 import { IInitialStateProject, IProject } from './dtos';
 
 type ACTIONTYPE =
@@ -8,9 +9,13 @@ type ACTIONTYPE =
   | { type: 'ADD_PROJECT'; payload: IProject }
   | { type: 'VALIDATION_FORM' }
   | { type: 'ACTUAL_PROJECT'; payload: IProject }
-  | { type: 'REMOVE_PROJECT'; payload: string | number | undefined };
+  | { type: 'REMOVE_PROJECT'; payload: string | number | undefined }
+  | { type: 'PROJECT_ERROR'; payload: IAlertMessage };
 
-export default (state: IInitialStateProject, action: ACTIONTYPE) => {
+export default (
+  state: IInitialStateProject,
+  action: ACTIONTYPE
+): IInitialStateProject => {
   switch (action.type) {
     case 'FORM_PROJECT':
       return {
@@ -48,9 +53,15 @@ export default (state: IInitialStateProject, action: ACTIONTYPE) => {
       return {
         ...state,
         projects: state.projects.filter(
-          (project: IProject) => project.id !== action.payload
+          (project: IProject) => project._id !== action.payload
         ),
         project: null,
+      };
+
+    case 'PROJECT_ERROR':
+      return {
+        ...state,
+        message: action.payload,
       };
 
     default:

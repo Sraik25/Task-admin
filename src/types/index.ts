@@ -5,4 +5,11 @@ export const VALIDATION_FORM = 'VALIDATION_FORM';
 export const ACTUAL_PROJECT = 'ACTUAL_PROJECT';
 export const REMOVE_PROJECT = 'REMOVE_PROJECT';
 
-
+export const TASKS_PROJECT = 'TASKS_PROJECT';
+export const ADD_TASK = 'ADD_TASK';
+export const VALIDATION_FORMTASK = 'VALIDATION_FORMTASK';
+export const REMOVE_TASK = 'REMOVE_TASK';
+export const STATE_TASK = 'STATE_TASK';
+export const ACTUAL_TASK = 'ACTUAL_TASK';
+export const UPDATE_TASK = 'UPDATE_TASK';
+export const CLEAN_TASK = 'CLEAN_TASK';
